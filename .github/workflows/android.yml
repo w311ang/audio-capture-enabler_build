@@ -23,11 +23,20 @@ jobs:
         java-version: '11'
         distribution: 'temurin'
         cache: gradle
-
+    - name: Accept SDK licenses
+      run: |
+        cd $ANDROID_SDK_ROOT/tools/bin
+        yes | ./sdkmanager --licenses
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
     - name: Build with Gradle
       run: ./gradlew build
+    - name: SSH connection to Actions to debug
+      uses: P3TERX/ssh2actions@v1.0.0
+      if: failure()
+      env:
+        TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
     - uses: actions/upload-artifact@v2
       with:
         name: ${{ github.sha }}
